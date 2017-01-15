@@ -1,0 +1,13 @@
+Mongo :
+
+1) Mongo creates db only after inserting first document
+
+2) Mongo db find() returns cursor object i.e. we can use following
+    --var c = db.movies.find()
+    --c.hasNext()
+    returns : true
+    --c.next()
+    retrurns : {"_id" : .....,"title" :....}
+
+3) NodeJS driver uses WIRE protocol to connect with the MongoDB Server
+
