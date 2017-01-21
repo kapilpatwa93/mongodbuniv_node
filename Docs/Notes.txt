@@ -7,7 +7,145 @@ Mongo :
     --c.hasNext()
     returns : true
     --c.next()
-    retrurns : {"_id" : .....,"title" :....}
+    returns : {"_id" : .....,"title" :....}
 
 3) NodeJS driver uses WIRE protocol to connect with the MongoDB Server
+
+Week 2 : CRUD
+
+1) Object ID : _id : 12-Byte Hex String
+            DATE(4)|Mac(3)|PID(2)|Counter(3)
+               ____| ___  | __   | ___
+
+2) Create : insertOne : used to create single document
+            insertMany : user to create multiple documents
+                        when ordered option set to false allows to continue update process even after there are errors while mass insert
+                            eg: insertMany([{"key":"value"}],{"ordered":"false"})
+
+3) Reading doc :
+            Examples
+            /** to match scalar fields*/
+            db.movieDetails.find({"rated":"PG-13"}).pretty()
+
+            /** to match object fields*/
+            db.movieDetails.find({"tomato.meter": 100}).pretty()
+
+            /** to match with array*/
+
+            /** to exact match array */
+            db.movieDetails.find({"writers": ["Ethan Coen", "Joel Coen"]}).count()
+            // order of element in array of the query document matters
+
+            /** it matches any of the value on the array*/
+            db.movieDetails.find({"actors": ["Jeff Bridges"]}).count()
+
+            /** to match the element in the array at specific location*/
+            db.movieDetails.find({"actors.0": "Jeff Bridges"}).count()
+
+            Projections
+
+            /**to show only title field and ignoring the rest*/
+            db.movieDetails.find({"rated": "PG-13"},{"title" : 1})
+            /*this will by default show the _id field*/
+
+            /**to forcefully ignore the _id field*/
+            db.movieDetails.find({"rated": "PG-13"},{"title" : 1,"_id" : 0})
+
+
+            /**to ignore the actors and writes field and displaying the rest*/
+            db.movieDetails.find({"rated" : "PG-13"},{"actors" : 0, "writers" : 0})
+
+4) Comparison Operator
+
+        Examples
+
+        db.movieDetails.find({"runtime" : {$gt : 90 }}).count()
+
+        db.movieDetails.find({"runtime" : {$gt : 90 , $lt : 120}}).count()
+        db.movieDetails.find({"runtime" : {$gte : 90 , $lte : 120}}).count()
+
+        /*multiple fields*/
+
+        db.movieDetails.find({"tomato.meter" : {$gte : 95 },"runtime" : {$gte : 180 }}).pretty()
+
+        /** $ne also returns the doc which does not contain that field*/
+        db.movieDetails.find({"rated" : {$ne :"UNRATED"}}).count()
+        // returns all the doc that does not contain rated as "UNRATED" and all the docs that does not contain rated field itself
+
+        /** $in returns the doc that contains any of the values in the array*/
+        db.movieDetails.find({"rated" : {$in : ["PG-13", "G" , " PG"] }}).count()
+
+        /** $nin returns the doc that does not contains any of the values in the array*/
+
+        db.movieDetails.find({"rated" : {$nin : ["PG-13", "G" , " PG"] }}).count()
+
+5 ) Element Operators
+        Example
+
+        /*docs that contains tomato.meter field*/
+        db.movieDetails.find({"tomato.meter" : {$exists : true}}).count()
+
+        /*docs that contains tomato.meter field*/
+        db.movieDetails.find({"tomato.meter" : {$exists : false}}).count()
+
+        /*docs that contains tomato.meter field of string type*/
+        db.movieDetails.find({"tomato.meter" : {$type : "string"}}).count()
+
+6) Logical Operators
+
+        Example
+        /*Logical Operators*/
+
+        /*or operator*/
+
+        db.movieDetails.find({
+            $or: [
+                {"tomato.meter": {$gt: 95 ,$lt : 97}},
+                {"metacritic": {$gt: 95}}
+
+            ]
+        }).count()
+
+        /*and*/
+
+        db.movieDetails.find(
+                {
+                    $and : [
+                        {
+                            "metacritic" : { $gte : 93}
+                        },
+                        {
+                            "metacritic" : {$exists : true}
+                        }
+                    ]
+                }
+        ).count()
+
+
+        /*nested $and and $or*/
+
+        db.movieDetails.find({
+                    $or: [
+                        {
+                            $and: [
+                                {"metacritic": {$gte: 97}},
+                                {"metacritic": {$exists: true}}
+                            ]
+                        }, {
+                            $and: [
+                                {"tomato.meter": {$gte: 98}},
+                                {"tomato.meter": {$exists: true}}
+                            ]
+                        }
+                    ]
+                },
+                {"title": 1, "metacritic": 1, "tomato.meter": 1}
+        ).pretty()
+
+
+
+
+
+
+
 
