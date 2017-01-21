@@ -142,9 +142,60 @@ Week 2 : CRUD
                 {"title": 1, "metacritic": 1, "tomato.meter": 1}
         ).pretty()
 
+7) Regex
+    Example
+    /*$regex*/
+
+    db.movieDetails.find({"awards.text" : {$regex : /^Won\s.*/}}).count()
+    /*returns all the docs that contains Won as first word in awards.text field*/
+
+8) Array Operators
+
+    Example
+    /*Array operators*/
+    /*it returns all the docs that contains all the element in $all array irrespective of their order*/
+    db.movieDetails.find({ "genres" : {$all : ["Crime","Comedy", "Drama"]}},{"genres":1}).count()
+
+    /*matches the size of the array*/
+    db.movieDetails.find({"countries" : {$size : 3}},{"countries" : 1}).pretty()
+
+    db.movieDetails.find({"tomato.meter" : 50 ,"tomato.fresh" : 89},{"tomato" : 1}).count()
+
+    /*if boxOffice is array of object that contains contry and revenue as field*/
+
+    /*if you want to get the doc that contains country as UK and revenue $gt 10*/
+    db.movieDetails.find({boxOffice : {"country" : "UK", "revenue" : {$gt : 10}}}).pretty();
+    /*this query will not work as it will return doc that contains country UK and revenue gt 10 in diff ojbects of boxOffice Array*/
+
+    /*to get the expect doc use $elemMatch*/
+    db.movieDetails.find({boxOffice : {$elemMatch : { country : "UK","revenue" : {$gt : 10}}}}).pretty()
+    /*this will return the doc that contains country UK and revenue gt 10 in single object of boxOffice array*/
 
 
+9) Update :
+  updateOne
 
+        for scalar
+    updateSpecific fields
+    a) $set is used to add or update the field if exist
+    b) $inc is used to increment/decrement numerical(integer/float) value
+
+
+    db.movieDetails.find({"title" : "The Martian"}).pretty()
+    db.movieDetails.updateOne({"title" : "The Martian"},{
+        $inc : { "metacritic" : -10.5, "awards.wins" : 10 , },
+        $set: {"poster" : "12345"}
+    })
+
+    /*refer here for more example*/
+    https://docs.mongodb.com/v3.0/reference/operator/update-field/
+
+    for array
+
+
+    updateMany
+
+    replaceOne
 
 
 
