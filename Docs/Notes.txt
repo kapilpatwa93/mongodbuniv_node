@@ -191,12 +191,49 @@ Week 2 : CRUD
     https://docs.mongodb.com/v3.0/reference/operator/update-field/
 
     for array
+        /*correct way*/
+        db.up.updateOne({
+            "_id" :ObjectId("58846be545f49165001af03d")
+        },
+                {$addToSet : { "boxOffice" : {$each : [{"country":"Italy" , "revenue" : 45}]}}})
 
+        /*add prefectly in the array*/
+
+        /*without using $each*/
+        db.up.updateOne({
+                    "_id" :ObjectId("58846be545f49165001af03d")
+                },
+                {$addToSet : { "boxOffice" : [{"country":"Germany" , "revenue" : 45}]}})
+        /*removes first or last element 1:last -1 : first*/
+        db.up.updateOne({
+                    "_id" :ObjectId("58846be545f49165001af03d")
+        },
+                {
+                    $pop : {"boxOffice" : 1}
+                })
+
+
+        db.up.updateOne({
+            "_id" :ObjectId("58846be545f49165001af03d")
+
+        },
+                {
+                    $unset : {"boxOffice.7" : 1}
+                })
+        /*sets the array to null*/
+        db.up.updateOne({
+            "_id" :ObjectId("58846be545f49165001af03d")
+
+        },
+                {
+                    $pull : {"boxOffice" : null}
+                })
+
+        /*removes the null from the array*/
 
     updateMany
 
     replaceOne
-
 
 
 

@@ -1,0 +1,15 @@
+Week1
+1) What is mongo db : https://youtu.be/L-v-PBVLSe4
+2) Overview of Building  An app : https://youtu.be/iIhgggzzeoA
+No need of other videos as they are showing basics of node and express
+
+Week2
+
+1)Creating Documents : https://youtu.be/UYz8EYa2TnA
+2)The _id field : https://youtu.be/EZAuZv4Rz3U
+3) Comparison Operator : https://youtu.be/MgPbE7d-0hQ
+4)Element Operator : https://youtu.be/r8Wf6N6l_RM
+5)Logical Operator : https://youtu.be/4ozUoLcznq4
+6) Regex Operator : https://youtu.be/dgFiInkJv_M
+7) Array operator : https://youtu.be/npIsBIW7-ew
+8)Updating document : https://youtu.be/qrlqLZl4s4E
