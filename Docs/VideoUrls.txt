@@ -13,3 +13,8 @@ Week2
 6) Regex Operator : https://youtu.be/dgFiInkJv_M
 7) Array operator : https://youtu.be/npIsBIW7-ew
 8)Updating document : https://youtu.be/qrlqLZl4s4E
+
+
+Week 3
+1)find() and Cursor in the Nodejs driver  : https://youtu.be/XCjpSq7H_G4
+2)Projection in the nodejs driver : https://youtu.be/p4d8ux834b4

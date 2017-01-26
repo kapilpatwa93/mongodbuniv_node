@@ -237,3 +237,34 @@ Week 2 : CRUD
 
 
 
+---------------------------------Week3----------------------------
+1)db.collection('companies').find(query).toArray(function(err,docs))
+
+    the above syntax is known as chaining i.e find returns a cursor and pass it to toArray()
+    which will call to db and fetch all the value and give to the toArray()
+
+2)var cursor = db.collection('companies').find(query)
+
+    it will not give the call to db
+    it will just create a cursor and stream a data to application
+
+3) var cursor = db.collection('companies').find(query)
+    cursor.project(projection)
+
+    even this is not going to call db
+    it will prepare a query that will be called when using forEach()
+
+4) For querying element inside array of object eg - milestone : [{"source_description" : "asasasasa"},{...}]
+    we have to use
+    a) query["milestones.source_description"] =
+                {"$regex": options.milestones, "$options": "i"};
+
+        because it gives output query like : { 'milestones.source_description': { '$regex': 'billion valuation', '$options': 'i' } }
+
+     if we use
+    b) query.milestone = {};
+        query.milestone.source_description = {...}
+
+        output query string  = { milestones: { source_description: { '$regex': 'billion valuation', '$options': 'i' } } }
+        which is wrong while querying the db
+
