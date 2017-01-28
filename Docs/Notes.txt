@@ -268,3 +268,18 @@ Week 2 : CRUD
         output query string  = { milestones: { source_description: { '$regex': 'billion valuation', '$options': 'i' } } }
         which is wrong while querying the db
 
+5) Using dot notation for accessing the property inside the object
+    eg : $query["ipo.valuation_amount"]  {$exists : true , $ne : null}
+
+    eg ::@
+        query["ipo.valuation_amount"] = null
+        returns all the doc in which ipo.valuation_amount doesnt exist or is set to null
+
+6) While Sorting
+    cursor.sort function may contain object or array
+    eg : cursor.sort({founded_year: -1});
+
+    while giving multiple sort fields,use array because obj in js may change the order and array dont
+    so use array
+    eg :    cursor.sort([["founded_year", 1], ["number_of_employees", -1]]);
+

@@ -3,6 +3,5 @@
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$/Week1/Resources/hw1-2" libraries="{mongodbuniv_node/Week1/Resources/hw1-2/node_modules}" />
     <file url="file://$PROJECT_DIR$/Week1/Resources/hw1-3" libraries="{mongodbuniv_node/Week1/Resources/hw1-3/node_modules}" />
-    <file url="file://$PROJECT_DIR$/Week3/Resources/regexOperatorInNodeJSDriver" libraries="{mongodbuniv_node/Week3/Resources/regexOperatorInNodeJSDriver/node_modules}" />
   </component>
 </project>
