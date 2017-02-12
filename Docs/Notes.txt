@@ -327,3 +327,103 @@ db.categories.insertOne({"_id": "Physics", "children": ["Classical Mechanics", "
 db.categories.insertOne({"_id": "Chemistry", "children": [], "descendants": []})
 db.categories.insertOne({"_id": "Science", "children": ["Chemistry", "Physics"], "descendants": ["Chemistry", "Physics", "Classical Mechanics", "Quantum Mechanics"]})
 db.categories.insertOne({"_id": "Books", "children": ["Science"], "descendants": ["Science", "Chemistry", "Physics", "Classical Mechanics", "Quantum Mechanics"]})
+
+
+-----------------Week 5--------------------
+2 types of storage engine : 1) MMap1 2) WiredTiger
+
+1)MMap
+-Collection level locking
+- does not control the switching pages in virtual memory
+
+2)Wired Tiger
+-Often faster
+-document level locking
+-it controls the paging in virtual memory
+
+Index : indexes are used to generate the sequence of a field so that it can be read faster
+- it fastens read operation
+- it reduces write operation time, coz it is difficult to maintain index
+
+Multikey index :
+- when index created on a key which is array
+- compound indexes can be created in multi key(array,single value)
+- compound indexes cannot be created when both fields contains array ie (array,array) -- not allowed
+- if compound index created on 2 keys, and later tried to insert array values,
+        mongo db will not allow to insert array in keys
+
+Indexes for array of object
+    {
+        "_id" : ObjectId("551458821b87e1799edbebc4"),
+        "name" : "Eliot Horowitz",
+        "work_history" : [
+            {
+                "company" : "DoubleClick",
+                "position" : "Software Engineer"
+            },
+            {
+                "company" : "ShopWiki",
+                "position" : "Founder & CTO"
+            },
+            {
+                "company" : "MongoDB",
+                "position" : "Founder & CTO"
+            }
+        ]
+    }
+    Index : db.people.createIndex({'work_history.company' : -1});
+
+Unique Index :
+It does not allowd to create uinique index when collection already contains duplicate valuesfor a same key
+    -for single key unique
+    Syntax : db.students.createIndex({student_id : 1},{unique : true});
+    -for multiple key unique
+    Syntax : db.students.createIndex({student_id : 1,class_id : 1},{unique : true});
+
+It is not allowed when key is not present in all documents : it will give duplicate index as it consider value as null
+    and can be acheived using sparse Index
+
+Sparse Index : index created on key which is not present in all the documnets
+-its is smaller
+-it will not be usefull while sorting
+    syntax : db.students.createIndex({class_id : 1},{unique : true,sparse : true});
+
+
+Types of index creation :
+1)ForeGround
+    -faster
+    -blocks r/w(read and write) in the databse, other db can be used
+    -default method
+
+2)Background
+    -slower than foreground
+    -does not block r/w in the db
+    -creates one index at time, other will queue and wait till the first gets created per database in mongo 2.2
+
+Explain()
+-in mongo 3.? onwards explain is used before writing query.
+-It creates explain object and then takes the query
+-Unlike in previous version where explain() is nested after query and
+    it has disadvantages that it does not work on the query that does not returns cursor
+-it is of tree types
+    1) queryPlanner
+    2) ExecutionStats
+    3) allPlansExecution
+
+ Covered Queries
+    Queries that's output is fully satisfied by indexes(for explanation watch video)
+
+Index Cardinalities
+-Regular : 1:1 (number of docs)
+-Sparse : <= docs (coz nulls are not stored in index)
+-Multikey : > docs (because each value in array points to disk)
+On updating : every index has to be rewritten if the document is moved on the disk
+    (not in wired tiger because it does not store actual disk location, it stores RecordId, that is immutable)
+
+Geospatial Indexes : (2d index)
+    syntax : db.places.find({location : {$near : [74,140]}}).limit(3)
+
+Geospatial Spherical (lat, long)
+    watch video
+Text Indexes
+    watch video
