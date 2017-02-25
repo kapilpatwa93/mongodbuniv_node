@@ -1,0 +1,78 @@
+Week 7:
+    When the mongo db performs inserts or updates it writes on the Memory(Pages) and also keeps the information in the Journal which is the memory
+    The Server automatically updates the page content on the disk time is not fixed ,even journal does not gets updated constantly
+
+    Mongodb by default keeps w(acknowledge of write opertaion) = 1
+    and j(ack of journal gets written on disk) = 0
+
+    __________W_______  |  _________J_______
+        1               |      false            = (Default) fast, does not guarantee persistence
+        1               |       true            = slow, guarantees the persistence of the data
+        0               |       unack           = not recommended
+
+
+Replication :
+    Mongodb also uses concept of replication.(among multiple mongo servers, when one goes down another can act as primary server)
+     Types
+        1) Regular : mongod server
+        2) Arbitary : cannot be primary, just participate in the voting for deciding new primary node
+        3) Delayed/Regular : Can be used as backup for sometime , can also participating in voting. cannot be primary
+        4) Hidden : used for analysis, cannot be primary, can vote
+
+    Creating replica set
+
+    #!/usr/bin/env bash
+
+    mkdir -p /data/rs1 /data/rs2 /data/rs3
+    mongod --replSet m101 --logpath "1.log" --dbpath /data/rs1 --port 27018 --oplogSize 64 --fork --smallfiles
+    mongod --replSet m101 --logpath "2.log" --dbpath /data/rs2 --port 27019 --oplogSize 64 --smallfiles --fork
+    mongod --replSet m101 --logpath "3.log" --dbpath /data/rs3 --port 27020 --oplogSize 64 --smallfiles --fork
+
+    use the above script to create a mongo server in a single machine running in the different port
+
+    config = { _id: "m101", members:[
+              { _id : 0, host : "localhost:27018",priority : 0 , slaveDelay :5},
+              { _id : 1, host : "localhost:27019"},
+              { _id : 2, host : "localhost:27020"} ]
+    };
+
+
+    rs.initiate(config);
+    rs.status();
+
+How Replication works
+ -Each replication ceates oplog.res collection.This collection stores the write activity done by the primary server
+ -Secondary servers copies the oplog.res into and perform that activity. this the way they get synced to each other and this is asynchronous
+ -oplog.res stores the data in format which is independent of the server driver and version
+
+Incase Of failure
+    When primary node goes down, new node comes as Primary node
+    when the  failed node comes up, it will check from current primary node that if it has something to take from the primary
+        but it realises that it has some data which are not there in the primary server. so it will roll back changes and store that in a file
+
+    This can be avoided by setting w='majority' and j=1
+    means that once data is written on the primary server it will guarantee that all the nodes have the latest data
+     but this technique is very complicated so no one does that
+
+     Lecture Notes
+
+     While it is true that a replica set will never rollback a write if it was performed with w=majority and that write successfully replicated to a majority of nodes, it is possible that a write performed with w=majority gets rolled back.
+     Here is the scenario: you do write with w=majority and a failover over occurs after the write has committed to the primary but before replication completes. You will likely see an exception at the client. An election occurs and a new primary is elected.
+     When the original primary comes back up, it will rollback the committed write.
+     However, from your application's standpoint, that write never completed, so that's ok.
+
+Write Concerns in replication
+
+W=n (n=1,2...) number of node
+w=1 means it will wait only primary server to wait for the data to be written on the disk
+w=2 means it will wait only primary server and one more to wait for the data to be written on the disk
+w='majority'  it will wait for majority nodes
+
+Lecture Notes
+
+Write concern (w) value can be set at client, database or collection level within PyMongo.
+When you call MongoClient, you get a connection to the driver, but behind the scenes, PyMongo connects to multiple nodes of the replica set.
+The w value can be set at the client level. Andrew says that the w concern can be set at the connection level; he really means client level.
+ It's also important to note that wtimeout is the amount of time that the database will wait for replication before returning an error on the driver, but that even if the database returns an error due to wtimeout, the write will not be unwound at the primary and may complete at the secondaries.
+ Hence, writes that return errors to the client due to wtimeout may in fact succeed, but writes that return success, do in fact succeed.
+Finally, the video shows the use of an insert command in PyMongo. That call is deprecated and it should have been insert_one.
