@@ -76,3 +76,51 @@ The w value can be set at the client level. Andrew says that the w concern can b
  It's also important to note that wtimeout is the amount of time that the database will wait for replication before returning an error on the driver, but that even if the database returns an error due to wtimeout, the write will not be unwound at the primary and may complete at the secondaries.
  Hence, writes that return errors to the client due to wtimeout may in fact succeed, but writes that return success, do in fact succeed.
 Finally, the video shows the use of an insert command in PyMongo. That call is deprecated and it should have been insert_one.
+
+Replication Implication :
+    Read Concerns : you need to be sure that when you are reading from secondary node, it must be consistent
+    write concerns : w,j and wtimeout should be set according to the need of the application
+    Seed list : while provind the driver information about the replicated nodes, on of them should be valid and up node
+    error : network error, failover error, unique key error, validation error
+            to build robust app, it need to check exception
+
+
+Sharding :
+Sharding also uses config servers : congif servers stores all the information related to shards
+    ie. it uses chunks to store which doc belongs to which shard
+        mongos asks config server about the doc while reading
+
+    Types of shards
+        1) range based
+        2) hash based
+
+Use Watch video for learning more about how to create sharded environment
+
+
+How to choose shard keys
+ 1) sufficient cardinality : shard key should have max possible values(unlike it has 3 possible values and it has to be sharded in 100 of shards)
+ 2) hotspotting monotonically : suppose primary key is shard key and it will keep increasing monotonically
+                        and say last shards has range 1000-maxkey , so after sometime docs inserted will always go to last shards and this is not good
+
+ ex
+  order_id -hotspotting
+  order_date - hotspotting
+  vendor_id - can be good if more no.s of cardinality
+  verndor_id,order-date
+
+  photosharing app
+  user_name : it can bee
+  albums
+
+    Think hard before doing, it hard to redo
+
+    Sharding iplications
+     1)every doc need to include shard key
+     2 ) shardkey is immutable, once cteated cannot be deleted
+     3 ) index that starts with shard key,(student_id,class)- fine : here student_id is shard key
+     4 ) update should have a shard key - else it will be sent to all nodes
+     5 ) no unique key, unless part of the shard key or it start with shard key
+            because there is no way to force uniqueness on index and diff to know it is exist on all shards
+
+
+
