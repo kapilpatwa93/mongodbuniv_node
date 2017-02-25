@@ -1,3 +1,5 @@
+--mongoimport --drop -d crunchbase -c companies companies.json
+
 Mongo :
 
 1) Mongo creates db only after inserting first document
@@ -427,3 +429,148 @@ Geospatial Spherical (lat, long)
     watch video
 Text Indexes
     watch video
+
+
+MongoTop
+ Gives the detail about which db is using how much time to read and write in the specified time
+
+ MongoStat
+ Gives the detail about which operation(insert,query,update,delete) takes how much time in each second
+
+
+ --------------------Week6-------------------
+ Aggregation Framework
+    Its a technique in which collection is passed through various stages and each stages permform operation on
+        the input collection (arithmetic operation,string operation,reshaping ..)
+Types of stages:
+ Match
+ Project
+ sort
+ skip
+ limit
+
+Note : Using Limit stage before project stage will optimize the query because it limits the document and then
+        it will project from those docs
+        If $limit stage would have been after project, it will process all docs and then limit.
+    The order of execution of the stages depend on the order of query, so carefully order the stages
+
+
+
+Project Stage
+ Can perform string,arithmetic operation,etc expect changing datatype.
+ Query Reshaping:
+
+    It is a technique in which the values in the nested field are directly projected as top level field
+    ex
+     {
+        first_name : "Kapil",
+        middle_name : "Shailendra",
+        last_name : "Patwa",
+        technologies : {
+            database : ["Mongo","Sql Server","MySql","Oracle"],
+            languages : ["Java","NodeJS","PHP"]
+        },
+        colleges : [
+            {name : "Thakur",
+            address : {
+                street : "1",
+                locality : "Thakur Complex",
+                pin : 400067
+            }},
+            {name : "DJ Sanghvi",
+            address : {
+                street : "2",
+                locality : "Parla",
+                pin : 400050
+            }}
+        ]
+    }
+    If the above is the structure of the doc and we want name of the college to be projected in the top we can use $
+    Example :
+    db.students.aggregate({$match :{name.first : "Kapil"}},
+        {$project:{
+            _id : 0;
+            name : "$first_name",
+            college : "$colleges.name",
+            location : "$colleges.address.locality"
+        }}).pretty()
+
+        Output :
+       {
+           name : "Kapil",
+           college : ["Thakur,DJ Sanghvi"],
+           location : [["Thakur COmplex", "Thakur Village"],
+                       ["Parla","Churchgate"]
+           ]
+       }
+
+       Location is array of array because each college has mutiple address, and kapil has mutiple colleges
+
+       Example 2: Creating nested document with top level fields
+
+        db.students.aggregate($match:{name.first : "Kapil"}},
+               {$project:{
+                   _id : 0;
+                   name : {
+                   first: "$first_name",
+                   middle : "$middle_name",
+                   last : "$last_name"
+               }}}).pretty()
+        Output :
+
+        {
+            name : {
+                first : "Kapil",
+                middle : "Shailendra",
+                last : "Patwa"
+            }
+        }
+    $unwind : Watch video for great example
+        When you want element in array to be present separately in each doc ex below
+            ab= {
+                key1 : "abc",
+                key2 : "pqr",
+                key3 : ["val1","val2","val3"]
+            }
+
+            Output ={
+                key1 : "abc",
+                key2 : "pqr",
+                key3 : "val1"
+            },{
+                key1 : "abc",
+                key2 : "pqr",
+                key3 : "val2"
+            },{
+                key1 : "abc",
+                key2 : "pqr",
+                key3 : "val3"
+            }
+
+        $unwind stage should be before $project stage
+    Array Expression :
+        Used to perfrom some operation on array
+            slice[start,end] - gives the array from start to end index,
+            filter - filters the array for some condition
+            size - gives the count of n. of elements in the given input array
+            $arrayElemAt : gives the element at particular index (1,2) gives element from start
+                            (-1,-2) gives the element from end i.e last, and second last in this case
+            isArray :
+            $concatArrays :
+
+    Accumulators : Another types of expression
+        It is used to calculating values from fields in multiple docs
+        From mongo3.2 onwards, accumulators can also be used with $project stage,
+            unlike previous versions which it can be only used in $group Stage
+
+    $group :
+    it is similar to groupby in sql database and can perform operations on it using Accumulators
+    $push : used to create array of specified element
+
+    _id : it is very imp how to use it: watch video for better explanation
+
+Diff Between $group and $project
+    $group is designed to work on multiple docs, it performs operation on the collection on docs it receives
+    $project work on individual docs and perform operation on each doc
+
+    note : $sum : 1 is equal to sum++
